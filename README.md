@@ -1,11 +1,12 @@
 # Scripts and data to reproduce main figures in the "Estimating coil features from an equilibrium" paper
 
-This folder packages the key scripts and data needed to reproduce the figures in the paper titled ¨Estimating coil features from an equilibrium¨ by E. Rodriguez and W. Sengupta. The main figures are
-- `coil_set_k1.png`
-- `regcoil_phi_comparison_simple_true.png`
-and the scripts to generate them are included
+This repository bundles scripts and datasets needed to reproduce the main figures in the paper "Estimating coil features from an equilibrium" by E. Rodriguez and W. Sengupta. The main figures are:
+- `coil_set_k1.png` (Figure 1)
+- `regcoil_phi_comparison_simple_true.png` (Figure 3)
+- `excursion_distance_scan.pdf` (Figure 4)
 
-Validated default figure inputs in this bundle use the first available Precise QA case in this order: `s0p5`, `s0p72`, `s0p12`.
+All paths below are relative to the repository root.
+
 
 ## Included files
 
@@ -24,10 +25,12 @@ Script files:
 - `scripts/utils_surface_current.py`
 - `scripts/make_coil_set_k1.py`
 - `scripts/make_regcoil_phi_comparison_simple_true.py`
+- `scripts/make_excursion_distance_scan.py`
 
 Figure outputs:
 - `figures/coil_set_k1.png`
 - `figures/regcoil_phi_comparison_simple_true.png`
+- `data/precise_QH/excursion_distance_scan.pdf`
 
 Data folders:
 - `data/precise_QH/`
@@ -52,11 +55,10 @@ Data folders:
 ## Included scripts
 
 - `scripts/streamlined_regcoil_test.py`
-  - Portable version of the batch workflow.
-  - Uses relative defaults inside this bundle.
+  - Main script to make the analysis of REGCOIL on surfaces at different distances.
   - By default, does not rerun VMEC/REGCOIL (uses bundled data).
 - `scripts/downsample_vmec.py`
-  - Helper for building downsampled VMEC inputs.
+  - Helper for building downsampled VMEC inputs to consider configs at different radii.
 - `scripts/regcoil_distance_scan.py`
 - `scripts/regcoil_utils.py`
 - `scripts/utils_surface_current.py`
@@ -64,6 +66,8 @@ Data folders:
   - Recreates `figures/coil_set_k1.png`.
 - `scripts/make_regcoil_phi_comparison_simple_true.py`
   - Recreates `figures/regcoil_phi_comparison_simple_true.png`.
+- `scripts/make_excursion_distance_scan.py`
+  - Recreates `data/precise_QH/excursion_distance_scan.pdf` from bundled `coil_excursion_results.pkl` files.
 
 The utility scripts were slimmed for publication by removing non-essential top-level test/demo entry points while preserving the workflow and plotting paths used in this repository.
 
@@ -99,18 +103,29 @@ From this folder:
 python scripts/streamlined_regcoil_test.py
 python scripts/make_coil_set_k1.py
 python scripts/make_regcoil_phi_comparison_simple_true.py
+python scripts/make_excursion_distance_scan.py
 ```
 
 Expected outputs:
 - `figures/coil_set_k1.png`
 - `figures/regcoil_phi_comparison_simple_true.png`
+- `data/precise_QH/excursion_distance_scan.pdf`
 
-The two figure scripts default to the first available case among `s0p5`, `s0p72`, and `s0p12`.
-In the current repository state this resolves to:
-- `data/precise_QA/regcoil_scan_results_preciseQA_s0p72/wout_downsampled_preciseQAs_target_0.72.nc`
-- `data/precise_QA/regcoil_scan_results_preciseQA_s0p72/regcoil_out.d0.0100_250x700.nc`
+How `excursion_distance_scan.pdf` is made:
+- `scripts/make_excursion_distance_scan.py` calls `make_excursion_plot(...)` in `scripts/regcoil_distance_scan.py`.
+- It reads precomputed `coil_excursion_results.pkl` files from:
+  - `data/precise_QH/regcoil_scan_results_precise_QH_s_target_1.00/`
+  - `data/precise_QH/regcoil_scan_results_precise_QH_s_target_0.30/`
+  - `data/precise_QH/regcoil_scan_results_precise_QH_s_target_0.12/`
+- It reads VMEC reference excursions from:
+  - `data/precise_QH/coil_excursion_results_vmec.pkl`
+
+If you want to recompute those `coil_excursion_results.pkl` files (instead of using bundled ones), run `compute_coil_excursion_distance(load_or_compute="compute", folder=...)` for each run folder before generating the PDF.
+
 
 ## Optional full rerun
+
+You may need additional VMEC `wout` inputs and external executables for a full rerun.
 
 ```bash
 python scripts/streamlined_regcoil_test.py \
@@ -131,29 +146,3 @@ python scripts/streamlined_regcoil_test.py \
 ## Notes 
 
 The bundle in this repository was done by compiling and downsizing scripts and data originally used. GitHub Copilot was used (with guidance) to achieve this.
-
-## Publishing
-
-### GitHub push checklist
-
-```bash
-git init
-git lfs install
-git add .
-git commit -m "Initial reproducibility bundle"
-git branch -M main
-git remote add origin https://github.com/<username>/<repo>.git
-git push -u origin main
-```
-
-If push is rejected with `non-fast-forward`:
-
-```bash
-git fetch origin
-git pull --rebase origin main
-git push origin main
-```
-
-### DOI
-
-Use Zenodo to mint a DOI from a GitHub release tag (for example `v1.0.0`).
