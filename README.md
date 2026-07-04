@@ -1,17 +1,38 @@
-# Streamlined REGCOIL Reproducibility Bundle
+# Scripts and data to reproduce main figures in the "Estimating coil features from an equilibrium" paper
 
-This folder packages the key scripts and data needed to reproduce the workflow around `streamlined_regcoil_test.py` and generate the two paper figures:
+This folder packages the key scripts and data needed to reproduce the figures in the paper titled ¨Estimating coil features from an equilibrium¨ by E. Rodriguez and W. Sengupta. The main figures are
 - `coil_set_k1.png`
 - `regcoil_phi_comparison_simple_true.png`
+and the scripts to generate them are included
 
-## Folder layout
+Validated default figure inputs in this bundle use the first available Precise QA case in this order: `s0p5`, `s0p72`, `s0p12`.
 
-- `scripts/`: Python scripts used in the workflow.
-- `data/precise_QH/`: bundled VMEC/REGCOIL data and result folders for the precise QH workflow.
-- `data/precise_QA/`: bundled Precise QA REGCOIL scan folders and reference excursion files.
-- `data/W7X/`: bundled W7X REGCOIL scan folders and reference excursion files.
-- `data/W7X_short/`: bundled shortened W7X scan set used for faster comparisons.
-- `figures/`: figure outputs (and default target location for regenerated figures).
+## Included files
+
+Root files:
+- `README.md`
+- `LICENSE`
+- `requirements.txt`
+- `.gitattributes`
+- `.gitignore`
+
+Script files:
+- `scripts/streamlined_regcoil_test.py`
+- `scripts/downsample_vmec.py`
+- `scripts/regcoil_distance_scan.py`
+- `scripts/regcoil_utils.py`
+- `scripts/utils_surface_current.py`
+- `scripts/make_coil_set_k1.py`
+- `scripts/make_regcoil_phi_comparison_simple_true.py`
+
+Figure outputs:
+- `figures/coil_set_k1.png`
+- `figures/regcoil_phi_comparison_simple_true.png`
+
+Data folders:
+- `data/precise_QH/`
+- `data/precise_QA/`
+- `data/W7X/`
 
 ### Included case families
 
@@ -22,17 +43,11 @@ This folder packages the key scripts and data needed to reproduce the workflow a
 - `precise_QA`
   - `data/precise_QA/regcoil_scan_results_preciseQA`
   - `data/precise_QA/regcoil_scan_results_preciseQA_s0p12`
-  - `data/precise_QA/regcoil_scan_results_preciseQA_s0p3`
-  - `data/precise_QA/regcoil_scan_results_preciseQA_s0p5`
   - `data/precise_QA/regcoil_scan_results_preciseQA_s0p72`
 - `W7X`
   - `data/W7X/regcoil_scan_results_d23p4_tm_s_target_0.12`
   - `data/W7X/regcoil_scan_results_d23p4_tm_s_target_0.30`
   - `data/W7X/regcoil_scan_results_d23p4_tm_s_target_1.00`
-- `W7X_short`
-  - `data/W7X_short/regcoil_scan_results_d23p4_tm_s_target_0.12`
-  - `data/W7X_short/regcoil_scan_results_d23p4_tm_s_target_0.30`
-  - `data/W7X_short/regcoil_scan_results_d23p4_tm_s_target_1.00`
 
 ## Included scripts
 
@@ -50,12 +65,20 @@ This folder packages the key scripts and data needed to reproduce the workflow a
 - `scripts/make_regcoil_phi_comparison_simple_true.py`
   - Recreates `figures/regcoil_phi_comparison_simple_true.png`.
 
+The utility scripts were slimmed for publication by removing non-essential top-level test/demo entry points while preserving the workflow and plotting paths used in this repository.
+
 ## Environment
 
 Install Python dependencies:
 
 ```bash
 pip install -r requirements.txt
+```
+
+This repository contains large binary data files. Install Git LFS before cloning/pushing:
+
+```bash
+git lfs install
 ```
 
 External tools for full end-to-end reruns:
@@ -78,6 +101,15 @@ python scripts/make_coil_set_k1.py
 python scripts/make_regcoil_phi_comparison_simple_true.py
 ```
 
+Expected outputs:
+- `figures/coil_set_k1.png`
+- `figures/regcoil_phi_comparison_simple_true.png`
+
+The two figure scripts default to the first available case among `s0p5`, `s0p72`, and `s0p12`.
+In the current repository state this resolves to:
+- `data/precise_QA/regcoil_scan_results_preciseQA_s0p72/wout_downsampled_preciseQAs_target_0.72.nc`
+- `data/precise_QA/regcoil_scan_results_preciseQA_s0p72/regcoil_out.d0.0100_250x700.nc`
+
 ## Optional full rerun
 
 ```bash
@@ -93,9 +125,35 @@ python scripts/streamlined_regcoil_test.py \
   --wout-name preciseQA \
   --target-dir ./data/precise_QA \
   --s-target 0.12 0.30 1.00 \
-  --vmec-file ./data/precise_QA/regcoil_scan_results_preciseQA_s0p3/wout_downsampled_preciseQAs_target_0.30.nc
+  --vmec-file ./data/precise_QA/regcoil_scan_results_preciseQA_s0p72/wout_downsampled_preciseQAs_target_0.72.nc
 ```
 
 ## Notes 
 
 The bundle in this repository was done by compiling and downsizing scripts and data originally used. GitHub Copilot was used (with guidance) to achieve this.
+
+## Publishing
+
+### GitHub push checklist
+
+```bash
+git init
+git lfs install
+git add .
+git commit -m "Initial reproducibility bundle"
+git branch -M main
+git remote add origin https://github.com/<username>/<repo>.git
+git push -u origin main
+```
+
+If push is rejected with `non-fast-forward`:
+
+```bash
+git fetch origin
+git pull --rebase origin main
+git push origin main
+```
+
+### DOI
+
+Use Zenodo to mint a DOI from a GitHub release tag (for example `v1.0.0`).

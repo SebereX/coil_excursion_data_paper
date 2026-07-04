@@ -6,15 +6,25 @@ from pathlib import Path
 from utils_surface_current import make_nice_3d_plot_coils
 
 
+def choose_default_vmec(release_root: Path):
+    candidates = [
+        ("regcoil_scan_results_preciseQA_s0p5", "wout_downsampled_preciseQAs_target_0.50.nc"),
+        ("regcoil_scan_results_preciseQA_s0p72", "wout_downsampled_preciseQAs_target_0.72.nc"),
+        ("regcoil_scan_results_preciseQA_s0p12", "wout_downsampled_preciseQAs_target_0.12.nc"),
+    ]
+    base = release_root / "data" / "precise_QA"
+    for folder, wout_name in candidates:
+        vmec = base / folder / wout_name
+        if vmec.is_file():
+            return vmec
+    raise FileNotFoundError(
+        "No default Precise QA wout file found. Expected one of s0p5, s0p72, or s0p12."
+    )
+
+
 def parse_args():
     release_root = Path(__file__).resolve().parents[1]
-    default_vmec = (
-        release_root
-        / "data"
-        / "precise_QA"
-        / "regcoil_scan_results_preciseQA_s0p5"
-        / "wout_downsampled_preciseQAs_target_0.50.nc"
-    )
+    default_vmec = choose_default_vmec(release_root)
     default_output = release_root / "figures" / "coil_set_k1.png"
 
     parser = argparse.ArgumentParser(description="Render coil set and principal curvature map.")

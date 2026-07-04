@@ -6,22 +6,28 @@ from pathlib import Path
 from regcoil_utils import comparison_anal_regcoil
 
 
+def choose_default_inputs(release_root: Path):
+    candidates = [
+        ("regcoil_scan_results_preciseQA_s0p5", "wout_downsampled_preciseQAs_target_0.50.nc"),
+        ("regcoil_scan_results_preciseQA_s0p72", "wout_downsampled_preciseQAs_target_0.72.nc"),
+        ("regcoil_scan_results_preciseQA_s0p12", "wout_downsampled_preciseQAs_target_0.12.nc"),
+    ]
+    base = release_root / "data" / "precise_QA"
+    for folder, wout_name in candidates:
+        run_dir = base / folder
+        vmec = run_dir / wout_name
+        regcoil = run_dir / "regcoil_out.d0.0100_250x700.nc"
+        if vmec.is_file() and regcoil.is_file():
+            return vmec, regcoil
+    raise FileNotFoundError(
+        "No default Precise QA pair found. Expected one of: "
+        "s0p5, s0p72, or s0p12 with both wout and regcoil_out files."
+    )
+
+
 def parse_args():
     release_root = Path(__file__).resolve().parents[1]
-    default_vmec = (
-        release_root
-        / "data"
-        / "precise_QA"
-        / "regcoil_scan_results_preciseQA_s0p5"
-        / "wout_downsampled_preciseQAs_target_0.50.nc"
-    )
-    default_regcoil = (
-        release_root
-        / "data"
-        / "precise_QA"
-        / "regcoil_scan_results_preciseQA_s0p5"
-        / "regcoil_out.d0.0100_250x700.nc"
-    )
+    default_vmec, default_regcoil = choose_default_inputs(release_root)
     default_output = release_root / "figures" / "regcoil_phi_comparison_simple_true.png"
 
     parser = argparse.ArgumentParser(description="Compare REGCOIL and analytic current potential.")
