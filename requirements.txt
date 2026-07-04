@@ -1,0 +1,9 @@
+numpy
+scipy
+matplotlib
+plotly
+kaleido
+xarray
+numba
+tqdm
+simsopt
